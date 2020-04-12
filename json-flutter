@@ -1,0 +1,127 @@
+import 'package:flutter/material.dart';
+import 'dart:async';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: MyHomePage(title: 'Users'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage({Key key, this.title}) : super(key: key);
+  final String title;
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  List<DriverLocation> _list = [];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: Center(
+        child: FloatingActionButton(
+          onPressed: () async {
+            var url =
+                "http://web.converged-technology.com:8080/Bus/rest/Driver/GetDriverLocation";
+            String jsonn = '{"driver_id":1}';
+            Map<String, String> headers = {"Content-type": "application/json"};
+            var data = await http.post(url, headers: headers, body: jsonn);
+            var jsonData = json.decode(data.body);
+            print("_test : $jsonData");
+
+            setState(() {
+              for (Map i in jsonData) {
+                _list.add(DriverLocation.fromJson(i));
+              }
+            });
+            print("_test : " + _list.toString());
+          },
+        ),
+      ), // This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+}
+class DriverLocation {
+  Response response;
+  Loaction loaction;
+
+  DriverLocation({this.response, this.loaction});
+
+  DriverLocation.fromJson(Map<String, dynamic> json) {
+    response = json['response'] != null
+        ? new Response.fromJson(json['response'])
+        : null;
+    loaction = json['Loaction'] != null
+        ? new Loaction.fromJson(json['Loaction'])
+        : null;
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    if (this.response != null) {
+      data['response'] = this.response.toJson();
+    }
+    if (this.loaction != null) {
+      data['Loaction'] = this.loaction.toJson();
+    }
+    return data;
+  }
+}
+
+class Response {
+  String message;
+  int responseCode;
+
+  Response({this.message, this.responseCode});
+
+  Response.fromJson(Map<String, dynamic> json) {
+    message = json['message'];
+    responseCode = json['responseCode'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['message'] = this.message;
+    data['responseCode'] = this.responseCode;
+    return data;
+  }
+}
+
+class Loaction {
+  int driverId;
+  String latitude;
+  String longitude;
+  String time;
+
+  Loaction({this.driverId, this.latitude, this.longitude, this.time});
+
+  Loaction.fromJson(Map<String, dynamic> json) {
+    driverId = json['driver_id'];
+    latitude = json['Latitude'];
+    longitude = json['longitude'];
+    time = json['time'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['driver_id'] = this.driverId;
+    data['Latitude'] = this.latitude;
+    data['longitude'] = this.longitude;
+    data['time'] = this.time;
+    return data;
+  }
+}
